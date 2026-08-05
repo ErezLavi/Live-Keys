@@ -3,7 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:piano_app/common/app_sizes.dart';
 import 'package:piano_app/menu/chords_grid.dart';
 import 'package:piano_app/menu/scales_grid.dart';
-import 'package:piano_app/piano/piano_page_controller.dart';
+import 'package:piano_app/piano/piano_screen_controller.dart';
 
 class TopMenuBar extends StatelessWidget {
   final PianoPageController controller;
@@ -43,6 +43,7 @@ class TopMenuBar extends StatelessWidget {
                     menuController.open();
                   }
                 }
+
                 if (isCompact) {
                   return IconButton(
                     icon: const Icon(Icons.piano),
@@ -68,6 +69,7 @@ class TopMenuBar extends StatelessWidget {
                   initialRootPc: controller.selectedChord.rootPc ?? 0,
                   initialChordType: controller.selectedChord.type,
                   initialInversion: controller.selectedChord.inversion,
+                  keySignature: controller.selectedKeySignature,
                   useFlats: controller.useFlats,
                 ),
               ],
@@ -82,6 +84,7 @@ class TopMenuBar extends StatelessWidget {
                     controller.open();
                   }
                 }
+
                 if (isCompact) {
                   return IconButton(
                     onPressed: toggleMenu,
@@ -106,6 +109,7 @@ class TopMenuBar extends StatelessWidget {
                   onScaleCleared: controller.clearSelectedScale,
                   initialRootPc: controller.selectedScale.rootPc ?? 0,
                   initialScaleType: controller.selectedScale.type,
+                  keySignature: controller.selectedKeySignature,
                   useFlats: controller.useFlats,
                 ),
               ],
@@ -177,7 +181,7 @@ class TopMenuBar extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              soundFont.assetPath == controller.selectedSoundFont.assetPath ? Icons.check : null,
+                              soundFont.assetPath ==controller.selectedSoundFont.assetPath ? Icons.check : null,
                               size: 18,
                             ),
                             AppSizes.space8.sbWidth,

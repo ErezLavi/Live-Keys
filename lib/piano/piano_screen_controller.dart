@@ -6,6 +6,8 @@ import 'package:piano_app/common/chord_detector.dart';
 import 'package:piano_app/common/constants.dart';
 import 'package:piano_app/common/midi_service.dart';
 import 'package:piano_app/common/piano_utils.dart';
+import 'package:piano_app/domain/key_signature_reference.dart';
+import 'package:piano_app/domain/sound_font_option.dart';
 import 'package:piano_app/domain/selected_chord.dart';
 import 'package:piano_app/domain/selected_scale.dart';
 
@@ -20,14 +22,17 @@ class PianoPageController extends ChangeNotifier {
   final FocusNode focusNode = FocusNode();
   final Set<NotePosition> _pressedNotes = {};
   final Map<LogicalKeyboardKey, NotePosition> _activeKeyNotes = {};
-  final List<SoundFontOption> _availableSoundFonts = List.of(Constants.soundFonts);
+  final List<SoundFontOption> _availableSoundFonts = List.of(
+    Constants.soundFonts,
+  );
   final MidiService _midiService = MidiService();
   final AudioService _audioService = AudioService();
   final PianoUtils _pianoTheory = const PianoUtils();
 
   // Variables
   int _keyboardOctave = 4;
-  bool _useFlats = false;
+  KeySignatureReference _selectedKeySignature =
+      Constants.keySignatureReferences.first;
   bool _isMuted = false;
   SoundFontOption _soundFont = Constants.soundFonts.first;
   String currentChord = '';
@@ -38,29 +43,38 @@ class PianoPageController extends ChangeNotifier {
   List<NotePosition> get pressedNotes => _pressedNotes.toList();
   NoteRange get noteRange => fullRange;
   int get keyboardOctave => _keyboardOctave;
-  bool get useFlats => _useFlats;
+  bool get useFlats => _selectedKeySignature.usesFlats;
   bool get isMuted => _isMuted;
   SoundFontOption get selectedSoundFont => _soundFont;
   SelectedChord get selectedChord => _selectedChord;
   SelectedScale get selectedScale => _selectedScale;
-  List<SoundFontOption> get availableSoundFonts => List.unmodifiable(_availableSoundFonts);
+  KeySignatureReference get selectedKeySignature => _selectedKeySignature;
+  List<KeySignatureReference> get keySignatureReferences =>
+      Constants.keySignatureReferences;
+  List<SoundFontOption> get availableSoundFonts =>
+      List.unmodifiable(_availableSoundFonts);
   List<NotePosition> get combinedHighlightedNotes {
     final combined = <NotePosition>{};
     combined.addAll(_selectedChord.notes);
     combined.addAll(_selectedScale.notes);
     return combined.toList();
   }
+
   // Connected devices
   List<String> get connectedDeviceNames => _midiService.connectedDeviceNames;
 
   void _updateChord() {
-    final detected = ChordDetector.detect(_pressedNotes, useFlats: _useFlats);
+    final detected = ChordDetector.detect(
+      _pressedNotes,
+      useFlats: useFlats,
+      keySignature: _selectedKeySignature,
+    );
     currentChord = detected?.name ?? "";
   }
 
-  void setUseFlats(bool value) {
-    if (_useFlats == value) return;
-    _useFlats = value;
+  void setSelectedKeySignature(KeySignatureReference value) {
+    if (_selectedKeySignature == value) return;
+    _selectedKeySignature = value;
     _updateChord();
     notifyListeners();
   }
@@ -133,8 +147,8 @@ class PianoPageController extends ChangeNotifier {
     }
 
     if (updated) {
-      notifyListeners();
       _updateChord();
+      notifyListeners();
     }
   }
 
@@ -261,6 +275,7 @@ class PianoPageController extends ChangeNotifier {
       await _audioService.loadSoundFontFromFile(filePath: _soundFont.assetPath);
     }
   }
+
   void setMuted(bool value) {
     if (_isMuted == value) return;
     _isMuted = value;
@@ -271,6 +286,7 @@ class PianoPageController extends ChangeNotifier {
     }
     notifyListeners();
   }
+
   void toggleMuted() => setMuted(!_isMuted);
 
   //*** Midi handling ***

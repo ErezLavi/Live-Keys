@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:piano/piano.dart';
 import 'package:piano_app/custom_piano/custom_clef_image.dart';
+import 'package:piano_app/domain/key_signature_reference.dart';
 
 class GrandStaffViewerWidget extends StatelessWidget {
   final Color clefColor;
   final Color noteColor;
   final List<NotePosition> pressedNotes;
-  final bool useAlternativeAccidentals;
+  final KeySignatureReference? keySignature;
 
   const GrandStaffViewerWidget({
     super.key,
     this.clefColor = Colors.black,
     this.noteColor = Colors.black,
     this.pressedNotes = const [],
-    this.useAlternativeAccidentals = false,
+    this.keySignature,
   });
 
   List<NoteImage> _filterNotesForClef(Clef clef, NoteRange range) {
@@ -47,7 +48,7 @@ class GrandStaffViewerWidget extends StatelessWidget {
                 noteImages: trebleNotes,
                 clefColor: clefColor,
                 noteColor: noteColor,
-                useAlternativeAccidentals: useAlternativeAccidentals,
+                keySignature: keySignature,
               ),
             ),
           ),
@@ -60,7 +61,7 @@ class GrandStaffViewerWidget extends StatelessWidget {
                 noteImages: bassNotes,
                 clefColor: clefColor,
                 noteColor: noteColor,
-                useAlternativeAccidentals: useAlternativeAccidentals,
+                keySignature: keySignature,
               ),
             ),
           ),

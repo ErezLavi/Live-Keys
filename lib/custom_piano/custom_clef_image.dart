@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:piano/piano.dart';
+import 'package:piano_app/domain/key_signature_reference.dart';
 
 import 'custom_clef_painter.dart';
 
@@ -10,7 +11,7 @@ class CustomClefImage extends StatelessWidget {
   final List<NoteImage> noteImages;
   final Color clefColor;
   final Color noteColor;
-  final bool useAlternativeAccidentals;
+  final KeySignatureReference? keySignature;
 
   const CustomClefImage({
     super.key,
@@ -20,7 +21,7 @@ class CustomClefImage extends StatelessWidget {
     required this.clefColor,
     required this.noteColor,
     NoteRange? noteRangeToClip,
-    this.useAlternativeAccidentals = false,
+    this.keySignature,
   }) : noteRangeToClip = noteRangeToClip ?? noteRange;
 
   @override
@@ -34,7 +35,7 @@ class CustomClefImage extends StatelessWidget {
             noteRangeToClip: noteRangeToClip,
             lineHeight: 1,
             noteImages: noteImages,
-            useAlternativeAccidentals: useAlternativeAccidentals,
+            keySignature: keySignature,
           ),
         ),
       );

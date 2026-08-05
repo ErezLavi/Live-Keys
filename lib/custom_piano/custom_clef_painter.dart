@@ -5,6 +5,8 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:piano/piano.dart';
+import 'package:piano_app/common/piano_utils.dart';
+import 'package:piano_app/domain/key_signature_reference.dart';
 
 class CustomClefPainter extends CustomPainter with EquatableMixin {
   final Clef clef;
@@ -19,7 +21,7 @@ class CustomClefPainter extends CustomPainter with EquatableMixin {
   final int lineHeight;
   final Color clefColor;
   final Color noteColor;
-  final bool useAlternativeAccidentals;
+  final KeySignatureReference? keySignature;
 
   /// Satisfies `EquatableMixin` and used in shouldRepaint for redraw efficiency
   @override
@@ -32,7 +34,7 @@ class CustomClefPainter extends CustomPainter with EquatableMixin {
         lineHeight,
         clefColor,
         noteColor,
-        useAlternativeAccidentals,
+        keySignature,
       ];
 
   final Paint _linePaint;
@@ -53,7 +55,7 @@ class CustomClefPainter extends CustomPainter with EquatableMixin {
     this.clefColor = Colors.black,
     this.noteColor = Colors.black,
     this.lineHeight = 1,
-    this.useAlternativeAccidentals = false,
+    this.keySignature,
   })  : _naturalPositions = noteRange.naturalPositions,
         _linePaint = Paint()
           ..color = clefColor
@@ -148,10 +150,10 @@ class CustomClefPainter extends CustomPainter with EquatableMixin {
         (firstLineIndex + (lastLineIndex - firstLineIndex - 1) / 2).floor();
 
     for (final noteImage in noteImages) {
-      final displayNotePosition = useAlternativeAccidentals
-          ? noteImage.notePosition.alternativeAccidental ??
-              noteImage.notePosition
-          : noteImage.notePosition;
+      final displayNotePosition = const PianoUtils().spellNotePosition(
+        noteImage.notePosition,
+        keySignature: keySignature,
+      );
       final noteIndex = naturalPositionOf(displayNotePosition);
       if (noteIndex == -1) {
         continue;
