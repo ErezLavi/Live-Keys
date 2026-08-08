@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:piano_app/common/app_sizes.dart';
+import 'package:piano_app/menu/adaptive_menu.dart';
 import 'package:piano_app/menu/chords_grid.dart';
 import 'package:piano_app/menu/scales_grid.dart';
 import 'package:piano_app/piano/piano_screen_controller.dart';
@@ -33,86 +34,61 @@ class TopMenuBar extends StatelessWidget {
           spacing: isCompact ? 1 : AppSizes.space4,
           runSpacing: isCompact ? 1 : AppSizes.space4,
           children: [
-            MenuAnchor(
-              alignmentOffset: const Offset(0, 8),
-              builder: (context, menuController, _) {
-                void toggleMenu() {
-                  if (menuController.isOpen) {
-                    menuController.close();
-                  } else {
-                    menuController.open();
-                  }
-                }
-
-                if (isCompact) {
-                  return IconButton(
-                    icon: const Icon(Icons.piano),
-                    tooltip: 'Chords',
-                    iconSize: iconSize,
-                    padding: iconPadding,
-                    onPressed: toggleMenu,
-                  );
-                }
-                return TextButton.icon(
-                  onPressed: toggleMenu,
-                  icon: Icon(Icons.piano, size: iconSize),
-                  label: const Text('Chords'),
-                  style: TextButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.onSurface,
-                  ),
-                );
-              },
-              menuChildren: [
-                ChordsGrid(
-                  onChordSelected: controller.onChordSelected,
-                  onChordCleared: controller.clearSelectedChord,
-                  initialRootPc: controller.selectedChord.rootPc ?? 0,
-                  initialChordType: controller.selectedChord.type,
-                  initialInversion: controller.selectedChord.inversion,
-                  keySignature: controller.selectedKeySignature,
-                  useFlats: controller.useFlats,
-                ),
-              ],
+            AdaptiveMenu(
+              isCompact: isCompact,
+              trigger: (context, open) => isCompact
+                  ? IconButton(
+                      icon: const Icon(Icons.piano),
+                      tooltip: 'Chords',
+                      iconSize: iconSize,
+                      padding: iconPadding,
+                      onPressed: open,
+                    )
+                  : TextButton.icon(
+                      onPressed: open,
+                      icon: Icon(Icons.piano, size: iconSize),
+                      label: const Text('Chords'),
+                      style: TextButton.styleFrom(
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+              content: ChordsGrid(
+                onChordSelected: controller.onChordSelected,
+                onChordCleared: controller.clearSelectedChord,
+                initialRootPc: controller.selectedChord.rootPc ?? 0,
+                initialChordType: controller.selectedChord.type,
+                initialInversion: controller.selectedChord.inversion,
+                keySignature: controller.selectedKeySignature,
+                useFlats: controller.useFlats,
+              ),
             ),
-            MenuAnchor(
-              alignmentOffset: const Offset(0, 8),
-              builder: (context, controller, _) {
-                void toggleMenu() {
-                  if (controller.isOpen) {
-                    controller.close();
-                  } else {
-                    controller.open();
-                  }
-                }
-
-                if (isCompact) {
-                  return IconButton(
-                    onPressed: toggleMenu,
-                    icon: const Icon(Icons.music_note),
-                    tooltip: 'Scales',
-                    iconSize: iconSize,
-                    padding: iconPadding,
-                  );
-                }
-                return TextButton.icon(
-                  onPressed: toggleMenu,
-                  icon: Icon(Icons.music_note, size: iconSize),
-                  label: const Text('Scales'),
-                  style: TextButton.styleFrom(
-                    foregroundColor: IconTheme.of(context).color,
-                  ),
-                );
-              },
-              menuChildren: [
-                ScalesGrid(
-                  onScaleSelected: controller.onScaleSelected,
-                  onScaleCleared: controller.clearSelectedScale,
-                  initialRootPc: controller.selectedScale.rootPc ?? 0,
-                  initialScaleType: controller.selectedScale.type,
-                  keySignature: controller.selectedKeySignature,
-                  useFlats: controller.useFlats,
-                ),
-              ],
+            AdaptiveMenu(
+              isCompact: isCompact,
+              trigger: (context, open) => isCompact
+                  ? IconButton(
+                      onPressed: open,
+                      icon: const Icon(Icons.music_note),
+                      tooltip: 'Scales',
+                      iconSize: iconSize,
+                      padding: iconPadding,
+                    )
+                  : TextButton.icon(
+                      onPressed: open,
+                      icon: Icon(Icons.music_note, size: iconSize),
+                      label: const Text('Scales'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: IconTheme.of(context).color,
+                      ),
+                    ),
+              content: ScalesGrid(
+                onScaleSelected: controller.onScaleSelected,
+                onScaleCleared: controller.clearSelectedScale,
+                initialRootPc: controller.selectedScale.rootPc ?? 0,
+                initialScaleType: controller.selectedScale.type,
+                keySignature: controller.selectedKeySignature,
+                useFlats: controller.useFlats,
+              ),
             ),
             MenuAnchor(
               builder: (context, controller, _) {
