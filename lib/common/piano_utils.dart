@@ -33,8 +33,12 @@ class PianoUtils {
       Accidental.Flat => -1,
       _ => 0,
     };
+    // Solve for the octave that keeps the pitch identical, using the same
+    // formula as `NotePosition.pitch`: pitch = noteOffset + accidental +
+    // (octave - 1) * 12. This keeps octave-crossing enharmonics (Cb, B#) on
+    // the correct line.
     final octave =
-        (source.pitch - _semitoneForNote(letter) - accidentalOffset) ~/ 12;
+        (source.pitch - _noteOffset(letter) - accidentalOffset) ~/ 12 + 1;
 
     return NotePosition(note: letter, octave: octave, accidental: accidental);
   }
@@ -50,14 +54,16 @@ class PianoUtils {
     _ => Note.C,
   };
 
-  int _semitoneForNote(Note note) => switch (note) {
-    Note.C => 0,
-    Note.D => 2,
-    Note.E => 4,
-    Note.F => 5,
-    Note.G => 7,
-    Note.A => 9,
-    Note.B => 11,
+  /// Mirrors the per-note offsets used by `NotePosition.pitch` in the `piano`
+  /// package (C1 == 24).
+  int _noteOffset(Note note) => switch (note) {
+    Note.C => 24,
+    Note.D => 26,
+    Note.E => 28,
+    Note.F => 29,
+    Note.G => 31,
+    Note.A => 33,
+    Note.B => 35,
   };
 
   NotePosition noteFromOffset(int semitone) {

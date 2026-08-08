@@ -42,7 +42,6 @@ class CustomClefPainter extends CustomPainter with EquatableMixin {
   final Paint _tailPaint;
 
   TextPainter? _clefSymbolPainter;
-  final Map<Accidental, TextPainter> _accidentalSymbolPainters = {};
   Size? _lastClefSize;
   final List<NotePosition> _naturalPositions;
 
@@ -78,6 +77,86 @@ class CustomClefPainter extends CustomPainter with EquatableMixin {
     }
   }
 
+  // Canonical staff octave for each accidental letter in a key signature, per
+  // clef. These are the traditional engraving positions (the "zig-zag").
+  static const Map<Note, int> _trebleSharpOctave = {
+    Note.F: 5, Note.C: 5, Note.G: 5, Note.D: 5, Note.A: 4, Note.E: 5, Note.B: 4,
+  };
+  static const Map<Note, int> _trebleFlatOctave = {
+    Note.B: 4, Note.E: 5, Note.A: 4, Note.D: 5, Note.G: 4, Note.C: 5, Note.F: 4,
+  };
+  static const Map<Note, int> _bassSharpOctave = {
+    Note.F: 3, Note.C: 3, Note.G: 3, Note.D: 3, Note.A: 2, Note.E: 3, Note.B: 2,
+  };
+  static const Map<Note, int> _bassFlatOctave = {
+    Note.B: 2, Note.E: 3, Note.A: 2, Note.D: 3, Note.G: 2, Note.C: 3, Note.F: 3,
+  };
+
+  Note _noteForLetter(String letter) => switch (letter) {
+    'C' => Note.C,
+    'D' => Note.D,
+    'E' => Note.E,
+    'F' => Note.F,
+    'G' => Note.G,
+    'A' => Note.A,
+    'B' => Note.B,
+    _ => Note.C,
+  };
+
+  (Note, Accidental) _parseAccidental(String spelling) {
+    final note = _noteForLetter(spelling[0]);
+    final accidental = spelling.endsWith('#')
+        ? Accidental.Sharp
+        : spelling.endsWith('b')
+            ? Accidental.Flat
+            : Accidental.None;
+    return (note, accidental);
+  }
+
+  /// The ordered accidentals to draw as the key signature, each with the staff
+  /// position it belongs on for this clef. Empty for C major / no signature or
+  /// an unsupported clef.
+  List<(NotePosition, Accidental)> _keySignatureGlyphs() {
+    final sig = keySignature;
+    if (sig == null || sig.accidentals.isEmpty) return const [];
+    if (clef != Clef.Treble && clef != Clef.Bass) return const [];
+
+    final sharp = !sig.usesFlats;
+    final octaves = clef == Clef.Bass
+        ? (sharp ? _bassSharpOctave : _bassFlatOctave)
+        : (sharp ? _trebleSharpOctave : _trebleFlatOctave);
+
+    final glyphs = <(NotePosition, Accidental)>[];
+    for (final spelling in sig.accidentals) {
+      final (note, accidental) = _parseAccidental(spelling);
+      final octave = octaves[note];
+      if (octave == null) continue;
+      glyphs.add((NotePosition(note: note, octave: octave), accidental));
+    }
+    return glyphs;
+  }
+
+  /// Which accidental the key signature applies to each note letter.
+  Map<Note, Accidental> _keySignatureByLetter() {
+    final sig = keySignature;
+    final map = <Note, Accidental>{};
+    if (sig == null) return map;
+    for (final spelling in sig.accidentals) {
+      final (note, accidental) = _parseAccidental(spelling);
+      map[note] = accidental;
+    }
+    return map;
+  }
+
+  TextPainter _glyphPainter(String glyph, double fontSize, Color color) =>
+      TextPainter(
+        text: TextSpan(
+          text: glyph,
+          style: TextStyle(fontSize: fontSize, color: color),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+
   @override
   void paint(Canvas canvas, Size size) {
     final bounds = padding.deflateRect(Offset.zero & size);
@@ -106,6 +185,15 @@ class CustomClefPainter extends CustomPainter with EquatableMixin {
     final ovalHeight = noteHeight * 2;
     final ovalWidth = ovalHeight * 1.5;
 
+    // Key signature dimensions are needed up front so ledger lines and notes
+    // share the same horizontal origin (everything shifts right of the glyphs).
+    final keySignatureGlyphs = _keySignatureGlyphs();
+    final keySignatureByLetter = _keySignatureByLetter();
+    final keySignatureGlyphSpacing = ovalWidth * 0.8;
+    final keySignatureWidth = keySignatureGlyphs.isEmpty
+        ? 0.0
+        : keySignatureGlyphs.length * keySignatureGlyphSpacing + ovalWidth * 0.5;
+
     double? firstLineY, lastLineY;
 
     for (var line = firstLineIsEven ? 0 : 1;
@@ -131,7 +219,11 @@ class CustomClefPainter extends CustomPainter with EquatableMixin {
       if (ledgerLineImage != null) {
         final ledgerLineLeft = bounds.left +
             clefSize.width +
-            (bounds.width - ovalWidth * 2 - clefSize.width) *
+            keySignatureWidth +
+            (bounds.width -
+                    ovalWidth * 2 -
+                    clefSize.width -
+                    keySignatureWidth) *
                 ledgerLineImage.offset;
         final ledgerLineRight = ledgerLineLeft + ovalWidth * 1.6;
         canvas.drawLine(
@@ -143,6 +235,23 @@ class CustomClefPainter extends CustomPainter with EquatableMixin {
         firstLineY ??= y;
         lastLineY = y;
       }
+    }
+
+    // --- Key signature: sharps/flats drawn just after the clef ---
+    for (var i = 0; i < keySignatureGlyphs.length; i++) {
+      final (position, accidental) = keySignatureGlyphs[i];
+      final index = _naturalPositions.indexWhere(
+          (p) => p.note == position.note && p.octave == position.octave);
+      if (index == -1) continue;
+      final ovalTop = bounds.height - (index * noteHeight) - noteHeight / 2;
+      _glyphPainter(_accidentalGlyph(accidental), ovalHeight * 2, clefColor)
+          .paint(
+        canvas,
+        Offset(
+          bounds.left + clefSize.width + i * keySignatureGlyphSpacing,
+          ovalTop - ovalHeight / 2,
+        ),
+      );
     }
 
     const tailHeight = 7;
@@ -161,7 +270,11 @@ class CustomClefPainter extends CustomPainter with EquatableMixin {
       final ovalRect = Rect.fromLTWH(
           bounds.left +
               clefSize.width +
-              (bounds.width - ovalWidth * 1.5 - clefSize.width) *
+              keySignatureWidth +
+              (bounds.width -
+                      ovalWidth * 1.5 -
+                      clefSize.width -
+                      keySignatureWidth) *
                   noteImage.offset,
           bounds.height - (noteIndex * noteHeight) - noteHeight / 2,
           ovalWidth,
@@ -194,26 +307,25 @@ class CustomClefPainter extends CustomPainter with EquatableMixin {
       _tailPaint.color = noteImage.color ?? noteColor;
       canvas.drawLine(tailFrom, tailTo, _tailPaint);
 
-      if (displayNotePosition.accidental != Accidental.None) {
-        if (_accidentalSymbolPainters[displayNotePosition.accidental] ==
-            null) {
-          _accidentalSymbolPainters[displayNotePosition.accidental] =
-              TextPainter(
-                  text: TextSpan(
-                      text: _accidentalGlyph(displayNotePosition.accidental),
-                      style: TextStyle(
-                          fontSize: ovalHeight * 2,
-                          color: noteImage.color ?? noteColor)),
-                  textDirection: TextDirection.ltr)
-                ..layout();
-        }
+      // Only draw an accidental the key signature doesn't already imply. A note
+      // that contradicts the key (e.g. F natural in G major) gets a natural.
+      final expected = keySignatureByLetter[displayNotePosition.note];
+      final actual = displayNotePosition.accidental;
+      final String? accidentalGlyph;
+      if (expected == actual || (expected == null && actual == Accidental.None)) {
+        accidentalGlyph = null;
+      } else if (actual == Accidental.None && expected != null) {
+        accidentalGlyph = '♮';
+      } else {
+        accidentalGlyph = _accidentalGlyph(actual);
+      }
 
-        _accidentalSymbolPainters[displayNotePosition.accidental]?.paint(
-            canvas,
-            ovalRect.topLeft.translate(
-              -ovalHeight,
-              -ovalHeight / 2,
-            ));
+      if (accidentalGlyph != null) {
+        _glyphPainter(accidentalGlyph, ovalHeight * 2, noteImage.color ?? noteColor)
+            .paint(
+          canvas,
+          ovalRect.topLeft.translate(-ovalHeight, -ovalHeight / 2),
+        );
       }
     }
 
