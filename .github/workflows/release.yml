@@ -114,7 +114,7 @@ jobs:
           #define MyAppExeName "piano_app.exe"
           
           [Setup]
-          AppId={{YOUR-UNIQUE-APP-ID}}
+          AppId={{301283FA-8FFE-49B6-98B4-C641901DF854}}
           AppName={#MyAppName}
           AppVersion={#MyAppVersion}
           AppPublisher={#MyAppPublisher}
