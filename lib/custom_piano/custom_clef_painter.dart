@@ -89,7 +89,7 @@ class CustomClefPainter extends CustomPainter with EquatableMixin {
     Note.F: 3, Note.C: 3, Note.G: 3, Note.D: 3, Note.A: 2, Note.E: 3, Note.B: 2,
   };
   static const Map<Note, int> _bassFlatOctave = {
-    Note.B: 2, Note.E: 3, Note.A: 2, Note.D: 3, Note.G: 2, Note.C: 3, Note.F: 3,
+    Note.B: 2, Note.E: 3, Note.A: 2, Note.D: 3, Note.G: 2, Note.C: 3, Note.F: 2,
   };
 
   Note _noteForLetter(String letter) => switch (letter) {
@@ -165,12 +165,35 @@ class CustomClefPainter extends CustomPainter with EquatableMixin {
       return;
     }
 
-    naturalPositionOf(NotePosition notePosition) =>
-        (noteRangeToClip?.contains(notePosition) == false)
-            ? -1
-            : _naturalPositions.indexWhere((position) =>
-                position.note == notePosition.note &&
-                position.octave == notePosition.octave);
+    // Clip by pitch rather than NoteRange.contains: the latter only recognises
+    // naturals/sharps and can't match enharmonic spellings like Fb or Cb, which
+    // would otherwise be dropped even though they're on the staff.
+    int diatonicOrder(Note note) => switch (note) {
+      Note.C => 0,
+      Note.D => 1,
+      Note.E => 2,
+      Note.F => 3,
+      Note.G => 4,
+      Note.A => 5,
+      Note.B => 6,
+    };
+
+    const offStaff = -1000; // sentinel; a real row index (incl. -1) is valid
+    naturalPositionOf(NotePosition notePosition) {
+      final clip = noteRangeToClip;
+      if (clip != null &&
+          (notePosition.pitch < clip.firstPosition.pitch ||
+              notePosition.pitch > clip.lastPosition.pitch)) {
+        return offStaff;
+      }
+      // Index by diatonic step from the lowest natural, so enharmonic spellings
+      // that fall just outside the natural list (e.g. B# below middle C) still
+      // resolve to a staff row instead of vanishing.
+      final first = _naturalPositions.first;
+      return (notePosition.octave - first.octave) * 7 +
+          diatonicOrder(notePosition.note) -
+          diatonicOrder(first.note);
+    }
 
     final clefSize = Size(80, bounds.height);
 
@@ -192,7 +215,7 @@ class CustomClefPainter extends CustomPainter with EquatableMixin {
     final keySignatureGlyphSpacing = ovalWidth * 0.8;
     final keySignatureWidth = keySignatureGlyphs.isEmpty
         ? 0.0
-        : keySignatureGlyphs.length * keySignatureGlyphSpacing + ovalWidth * 0.5;
+        : keySignatureGlyphs.length * keySignatureGlyphSpacing + ovalWidth * 0.4;
 
     double? firstLineY, lastLineY;
 
@@ -204,7 +227,7 @@ class CustomClefPainter extends CustomPainter with EquatableMixin {
         ledgerLineImage = line < firstLineIndex
             ? noteImages.firstWhereOrNull((noteImage) {
                 final position = naturalPositionOf(noteImage.notePosition);
-                return position != -1 && position <= line;
+                return position != offStaff && position <= line;
               })
             : noteImages.firstWhereOrNull(
                 (noteImage) => naturalPositionOf(noteImage.notePosition) >= line);
@@ -264,7 +287,7 @@ class CustomClefPainter extends CustomPainter with EquatableMixin {
         keySignature: keySignature,
       );
       final noteIndex = naturalPositionOf(displayNotePosition);
-      if (noteIndex == -1) {
+      if (noteIndex == offStaff) {
         continue;
       }
       final ovalRect = Rect.fromLTWH(
@@ -272,7 +295,7 @@ class CustomClefPainter extends CustomPainter with EquatableMixin {
               clefSize.width +
               keySignatureWidth +
               (bounds.width -
-                      ovalWidth * 1.5 -
+                      ovalWidth * 1.2 -
                       clefSize.width -
                       keySignatureWidth) *
                   noteImage.offset,
@@ -321,10 +344,16 @@ class CustomClefPainter extends CustomPainter with EquatableMixin {
       }
 
       if (accidentalGlyph != null) {
-        _glyphPainter(accidentalGlyph, ovalHeight * 2, noteImage.color ?? noteColor)
-            .paint(
+        final glyphPainter = _glyphPainter(
+            accidentalGlyph, ovalHeight * 2, noteImage.color ?? noteColor);
+        // Sit the accidental just to the left of the notehead, vertically
+        // centred on it.
+        glyphPainter.paint(
           canvas,
-          ovalRect.topLeft.translate(-ovalHeight, -ovalHeight / 2),
+          Offset(
+            ovalRect.left - glyphPainter.width - ovalWidth * 0.4,
+            ovalRect.center.dy - glyphPainter.height / 2,
+          ),
         );
       }
     }

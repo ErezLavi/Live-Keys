@@ -26,6 +26,27 @@ void main() {
     }
   });
 
+  test('enharmonic flat spellings still resolve to a staff line', () {
+    // Cb major (== Ab minor, 7 flats) spells E as Fb and B as Cb. These must
+    // still land on a natural staff position, or they vanish from the clef.
+    final cbMajor =
+        Constants.keySignatureReferences.firstWhere((s) => s.majorKey == 'Cb major');
+    final treble = NoteRange.forClefs([Clef.Treble]);
+
+    bool onStaff(NotePosition raw) {
+      final spelled = utils.spellNotePosition(raw, keySignature: cbMajor);
+      final withinPitch = spelled.pitch >= treble.firstPosition.pitch &&
+          spelled.pitch <= treble.lastPosition.pitch;
+      final hasLine = treble.naturalPositions.any(
+          (p) => p.note == spelled.note && p.octave == spelled.octave);
+      return withinPitch && hasLine;
+    }
+
+    // E5 -> Fb5, B4 -> Cb5, both comfortably inside the treble staff.
+    expect(onStaff(NotePosition(note: Note.E, octave: 5)), isTrue);
+    expect(onStaff(NotePosition(note: Note.B, octave: 4)), isTrue);
+  });
+
   test('spells the expected accidental letter in known keys', () {
     NotePosition sharp(Note n, int octave) =>
         NotePosition(note: n, octave: octave, accidental: Accidental.Sharp);
