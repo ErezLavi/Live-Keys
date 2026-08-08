@@ -212,7 +212,7 @@ class CustomClefPainter extends CustomPainter with EquatableMixin {
     // share the same horizontal origin (everything shifts right of the glyphs).
     final keySignatureGlyphs = _keySignatureGlyphs();
     final keySignatureByLetter = _keySignatureByLetter();
-    final keySignatureGlyphSpacing = ovalWidth * 0.8;
+    final keySignatureGlyphSpacing = ovalWidth * 0.55;
     final keySignatureWidth = keySignatureGlyphs.isEmpty
         ? 0.0
         : keySignatureGlyphs.length * keySignatureGlyphSpacing + ovalWidth * 0.4;
@@ -281,7 +281,35 @@ class CustomClefPainter extends CustomPainter with EquatableMixin {
     final middleLineIndex =
         (firstLineIndex + (lastLineIndex - firstLineIndex - 1) / 2).floor();
 
-    for (final noteImage in noteImages) {
+    // Notes that resolve to the same staff row (e.g. C and C#) would draw on
+    // top of each other. Nudge the higher-pitched note of each such group one
+    // notehead-width to the right so both are visible, while leaving their
+    // accidentals in the original column. Capped at a single indent, matching
+    // how a real chart offsets a clustered second.
+    final rowMembers = <int, List<int>>{};
+    final noteShifts = List<double>.filled(noteImages.length, 0.0);
+    for (var i = 0; i < noteImages.length; i++) {
+      final display = const PianoUtils().spellNotePosition(
+        noteImages[i].notePosition,
+        keySignature: keySignature,
+      );
+      final idx = naturalPositionOf(display);
+      if (idx == offStaff) continue;
+      rowMembers.putIfAbsent(idx, () => []).add(i);
+    }
+    for (final members in rowMembers.values) {
+      if (members.length < 2) continue;
+      members.sort((a, b) => noteImages[a]
+          .notePosition
+          .pitch
+          .compareTo(noteImages[b].notePosition.pitch));
+      for (var k = 1; k < members.length; k++) {
+        noteShifts[members[k]] = ovalWidth * 0.7;
+      }
+    }
+
+    for (var noteIdx = 0; noteIdx < noteImages.length; noteIdx++) {
+      final noteImage = noteImages[noteIdx];
       final displayNotePosition = const PianoUtils().spellNotePosition(
         noteImage.notePosition,
         keySignature: keySignature,
@@ -290,15 +318,17 @@ class CustomClefPainter extends CustomPainter with EquatableMixin {
       if (noteIndex == offStaff) {
         continue;
       }
+      final noteShift = noteShifts[noteIdx];
+      final ovalBaseLeft = bounds.left +
+          clefSize.width +
+          keySignatureWidth +
+          (bounds.width -
+                  ovalWidth * 1.2 -
+                  clefSize.width -
+                  keySignatureWidth) *
+              noteImage.offset;
       final ovalRect = Rect.fromLTWH(
-          bounds.left +
-              clefSize.width +
-              keySignatureWidth +
-              (bounds.width -
-                      ovalWidth * 1.2 -
-                      clefSize.width -
-                      keySignatureWidth) *
-                  noteImage.offset,
+          ovalBaseLeft + noteShift,
           bounds.height - (noteIndex * noteHeight) - noteHeight / 2,
           ovalWidth,
           ovalHeight);
@@ -346,12 +376,12 @@ class CustomClefPainter extends CustomPainter with EquatableMixin {
       if (accidentalGlyph != null) {
         final glyphPainter = _glyphPainter(
             accidentalGlyph, ovalHeight * 2, noteImage.color ?? noteColor);
-        // Sit the accidental just to the left of the notehead, vertically
-        // centred on it.
+        // Sit the accidental just to the left of the notehead's un-shifted
+        // column, vertically centred on it.
         glyphPainter.paint(
           canvas,
           Offset(
-            ovalRect.left - glyphPainter.width - ovalWidth * 0.4,
+            ovalBaseLeft - glyphPainter.width - ovalWidth * 0.4,
             ovalRect.center.dy - glyphPainter.height / 2,
           ),
         );
