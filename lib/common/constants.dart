@@ -155,11 +155,12 @@ class Constants {
 
     // 20-29: The "Add" Chords (Specific color clusters)
     "add9": 20,
-    "add2": 21,
-    "add4": 22,
-    "addb6": 23,
-    "add#11": 24,
-    "m9(no7)": 25,
+    "m(add9)": 21, // minor triad + 9, no 7th — preferred over "m9(no7)"
+    "add2": 22,
+    "add4": 23,
+    "addb6": 24,
+    "add#11": 25,
+    "m9(no7)": 26,
 
     // 30-39: Advanced/Altered (Complex tensions)
     "7sus4": 30,
