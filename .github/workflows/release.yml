@@ -6,7 +6,32 @@ on:
       - main
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.4'
+          channel: 'stable'
+          cache: true
+
+      - name: Show Flutter and Dart versions
+        run: flutter --version
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Run tests
+        run: flutter test
+
   build-android:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -23,7 +48,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
+          flutter-version: '3.38.4'
           channel: 'stable'
 
       - name: Get dependencies
@@ -39,6 +64,7 @@ jobs:
           path: build/app/outputs/flutter-apk/app-release.apk
 
   build-macos:
+    needs: test
     runs-on: macos-latest
     steps:
       - name: Checkout code
@@ -49,7 +75,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
+          flutter-version: '3.38.4'
           channel: 'stable'
 
       - name: Get dependencies
@@ -81,6 +107,7 @@ jobs:
           path: "*.dmg"
 
   build-windows:
+    needs: test
     runs-on: windows-latest
     steps:
       - name: Checkout code
@@ -91,7 +118,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
+          flutter-version: '3.38.4'
           channel: 'stable'
 
       - name: Get dependencies
