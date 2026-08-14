@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:piano_app/piano/piano_page.dart';
-import 'package:piano_app/piano/piano_page_controller.dart';
+import 'package:piano_app/piano/piano_screen.dart';
+import 'package:piano_app/piano/piano_screen_controller.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();

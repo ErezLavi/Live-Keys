@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:piano_app/common/app_sizes.dart';
 import 'package:piano_app/common/constants.dart';
+import 'package:piano_app/domain/key_signature_reference.dart';
 
 typedef OnScaleSelected = void Function(int rootPc, String scaleType);
 typedef OnScaleCleared = void Function();
@@ -10,6 +11,7 @@ class ScalesGrid extends StatefulWidget {
   final OnScaleCleared? onScaleCleared;
   final int initialRootPc;
   final String initialScaleType;
+  final KeySignatureReference? keySignature;
   final bool useFlats;
 
   const ScalesGrid({
@@ -18,6 +20,7 @@ class ScalesGrid extends StatefulWidget {
     this.onScaleCleared,
     this.initialRootPc = 0,
     this.initialScaleType = 'major',
+    this.keySignature,
     this.useFlats = false,
   });
 
@@ -48,17 +51,25 @@ class _ScalesGridState extends State<ScalesGrid> {
 
   @override
   Widget build(BuildContext context) {
-    final rootNames = List<int>.generate(
-      12,
-      (index) => index,
-    ).map((pc) => Constants.noteName(pc, useFlats: widget.useFlats)).toList();
+    final rootNames = List<int>.generate(12, (index) => index)
+        .map(
+          (pc) => Constants.noteName(
+            pc,
+            useFlats: widget.useFlats,
+            keySignature: widget.keySignature,
+          ),
+        )
+        .toList();
     final scaleTypes = Constants.scaleDB.keys.toList();
 
     return Material(
       color: Colors.transparent,
       borderRadius: BorderRadius.circular(AppSizes.radiusL),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppSizes.space8, horizontal: AppSizes.space12),
+        padding: const EdgeInsets.symmetric(
+          vertical: AppSizes.space8,
+          horizontal: AppSizes.space12,
+        ),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 420),
           child: Column(

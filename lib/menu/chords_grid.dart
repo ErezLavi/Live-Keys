@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:piano_app/common/app_sizes.dart';
 import 'package:piano_app/common/constants.dart';
+import 'package:piano_app/domain/key_signature_reference.dart';
 
 typedef OnChordSelected =
     void Function(int rootPc, String chordType, int inversion);
@@ -12,6 +13,7 @@ class ChordsGrid extends StatefulWidget {
   final int initialRootPc;
   final String initialChordType;
   final int initialInversion;
+  final KeySignatureReference? keySignature;
   final bool useFlats;
 
   const ChordsGrid({
@@ -21,6 +23,7 @@ class ChordsGrid extends StatefulWidget {
     this.initialRootPc = 0,
     this.initialChordType = '',
     this.initialInversion = 0,
+    this.keySignature,
     this.useFlats = false,
   });
 
@@ -57,10 +60,15 @@ class _ChordsGridState extends State<ChordsGrid> {
 
   @override
   Widget build(BuildContext context) {
-    final rootNames = List<int>.generate(
-      12,
-      (index) => index,
-    ).map((pc) => Constants.noteName(pc, useFlats: widget.useFlats)).toList();
+    final rootNames = List<int>.generate(12, (index) => index)
+        .map(
+          (pc) => Constants.noteName(
+            pc,
+            useFlats: widget.useFlats,
+            keySignature: widget.keySignature,
+          ),
+        )
+        .toList();
     final chordTypes = Constants.chordDB.keys
         .where((type) => (Constants.chordRank[type] ?? 999) <= 27)
         .toList();

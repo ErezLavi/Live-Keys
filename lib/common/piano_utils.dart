@@ -1,8 +1,70 @@
 import 'package:piano/piano.dart';
 import 'package:piano_app/common/constants.dart';
+import 'package:piano_app/domain/key_signature_reference.dart';
 
 class PianoUtils {
   const PianoUtils();
+
+  /// Re-spells [source] according to [keySignature] (or the [useFlats] fallback
+  /// when no signature is given), keeping the exact same pitch.
+  ///
+  /// This is the single source of truth for how a played pitch is named on the
+  /// keyboard and the staff: it delegates the letter/accidental choice to
+  /// [Constants.noteName] and then rebuilds a [NotePosition] whose octave is
+  /// derived from that spelling — so enharmonics that cross an octave boundary
+  /// (e.g. Cb, B#) land on the correct line.
+  NotePosition spellNotePosition(
+    NotePosition source, {
+    KeySignatureReference? keySignature,
+    bool useFlats = false,
+  }) {
+    final name = Constants.noteName(
+      source.pitch % 12,
+      useFlats: useFlats,
+      keySignature: keySignature,
+    );
+
+    final letter = _noteForLetter(name[0]);
+    final accidental = name.length > 1
+        ? (name[1] == '#' ? Accidental.Sharp : Accidental.Flat)
+        : Accidental.None;
+    final accidentalOffset = switch (accidental) {
+      Accidental.Sharp => 1,
+      Accidental.Flat => -1,
+      _ => 0,
+    };
+    // Solve for the octave that keeps the pitch identical, using the same
+    // formula as `NotePosition.pitch`: pitch = noteOffset + accidental +
+    // (octave - 1) * 12. This keeps octave-crossing enharmonics (Cb, B#) on
+    // the correct line.
+    final octave =
+        (source.pitch - _noteOffset(letter) - accidentalOffset) ~/ 12 + 1;
+
+    return NotePosition(note: letter, octave: octave, accidental: accidental);
+  }
+
+  Note _noteForLetter(String letter) => switch (letter) {
+    'C' => Note.C,
+    'D' => Note.D,
+    'E' => Note.E,
+    'F' => Note.F,
+    'G' => Note.G,
+    'A' => Note.A,
+    'B' => Note.B,
+    _ => Note.C,
+  };
+
+  /// Mirrors the per-note offsets used by `NotePosition.pitch` in the `piano`
+  /// package (C1 == 24).
+  int _noteOffset(Note note) => switch (note) {
+    Note.C => 24,
+    Note.D => 26,
+    Note.E => 28,
+    Note.F => 29,
+    Note.G => 31,
+    Note.A => 33,
+    Note.B => 35,
+  };
 
   NotePosition noteFromOffset(int semitone) {
     final octave = semitone ~/ 12;

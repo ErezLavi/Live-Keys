@@ -1,5 +1,6 @@
 import 'package:piano_app/common/constants.dart';
 import 'package:piano/piano.dart';
+import 'package:piano_app/domain/key_signature_reference.dart';
 
 class DetectedChord {
   DetectedChord({required this.name, required this.root, required this.bass});
@@ -19,12 +20,12 @@ class Candidate {
 
 class ChordDetector {
   /// Main entry point
-  static DetectedChord? detect(Set<NotePosition> pressed,
-      {bool useFlats = false}) {
-    final List<int> pcs = pressed
-        .map((e) => e.pitch % 12)
-        .toSet()
-        .toList()
+  static DetectedChord? detect(
+    Set<NotePosition> pressed, {
+    bool useFlats = false,
+    KeySignatureReference? keySignature,
+  }) {
+    final List<int> pcs = pressed.map((e) => e.pitch % 12).toSet().toList()
       ..sort();
 
     final pcsSet = pcs.toSet();
@@ -51,8 +52,7 @@ class ChordDetector {
         if (!_acceptableRoot(template, playedIntervals)) continue;
 
         final required = Constants.chordRequiredIntervals[chordType];
-        if (required != null &&
-            !required.every(playedIntervals.contains)) {
+        if (required != null && !required.every(playedIntervals.contains)) {
           continue;
         }
 
@@ -102,6 +102,7 @@ class ChordDetector {
         best.type,
         playedIntervals,
         useFlats: useFlats,
+        keySignature: keySignature,
       ),
       root: best.root,
       bass: bassPc,
@@ -143,15 +144,24 @@ class ChordDetector {
     int rootPc,
     int bassPc,
     String chordType,
-    Set<int> playedIntervals,
-    {bool useFlats = false}
-  ) {
-    final rootName = Constants.noteName(rootPc, useFlats: useFlats);
+    Set<int> playedIntervals, {
+    bool useFlats = false,
+    KeySignatureReference? keySignature,
+  }) {
+    final rootName = Constants.noteName(
+      rootPc,
+      useFlats: useFlats,
+      keySignature: keySignature,
+    );
     String name = "$rootName$chordType";
 
     if (bassPc == rootPc) return name;
 
-    final bassName = Constants.noteName(bassPc, useFlats: useFlats);
+    final bassName = Constants.noteName(
+      bassPc,
+      useFlats: useFlats,
+      keySignature: keySignature,
+    );
     return "$name/$bassName";
   }
 }

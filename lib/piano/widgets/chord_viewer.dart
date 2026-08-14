@@ -30,26 +30,32 @@ class ChordViewer extends StatelessWidget {
         final scaledRootSize = AppSizes.chordRootFontSize(sizeBasis);
         final scaledSuffixSize = AppSizes.chordSuffixFontSize(sizeBasis);
 
-        return Align(
-          alignment: Alignment.center,
-          child: Text.rich(
-            TextSpan(
-              children: [
-                TextSpan(
-                  text: root,
-                  style: TextStyle(
-                    fontSize: scaledRootSize,
-                    fontWeight: fontWeight,
+        return SizedBox(
+          width: constraints.maxWidth,
+          height: constraints.maxHeight,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: root,
+                    style: TextStyle(
+                      fontSize: scaledRootSize,
+                      fontWeight: fontWeight,
+                    ),
                   ),
-                ),
-                TextSpan(
-                  text: suffix,
-                  style: TextStyle(
-                    fontSize: scaledSuffixSize,
-                    fontWeight: fontWeight,
+                  TextSpan(
+                    text: suffix,
+                    style: TextStyle(
+                      fontSize: scaledSuffixSize,
+                      fontWeight: fontWeight,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
+              maxLines: 1,
+              softWrap: false,
             ),
           ),
         );

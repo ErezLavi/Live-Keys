@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:piano/piano.dart';
 import 'package:collection/collection.dart';
 import 'package:piano_app/common/constants.dart';
+import 'package:piano_app/common/piano_utils.dart';
+import 'package:piano_app/domain/key_signature_reference.dart';
 
 typedef OnNotePositionTapped = void Function(NotePosition position);
 typedef OnNotePositionReleased = void Function(NotePosition position);
@@ -30,8 +32,9 @@ class CustomInteractivePiano extends StatefulWidget {
   /// Whether to apply a repeating press animation to highlighted notes.
   final bool animateHighlightedNotes;
 
-  /// Whether to treat tapped notes as flats instead of sharps. Affects the value passed to `onNotePositionTapped`.
-  final bool useAlternativeAccidentals;
+  /// The key signature used to spell note names on the keys. When `null`, keys
+  /// are labelled with sharps.
+  final KeySignatureReference? keySignature;
 
   /// Whether to hide note names on keys.
   final bool hideNoteNames;
@@ -78,7 +81,7 @@ class CustomInteractivePiano extends StatefulWidget {
         this.naturalColor = Colors.white,
         this.accidentalColor = Colors.black,
         this.animateHighlightedNotes = false,
-        this.useAlternativeAccidentals = false,
+        this.keySignature,
         this.hideNoteNames = false,
         this.hideScrollbar = false,
         this.onNotePositionTapped,
@@ -113,9 +116,7 @@ class _CustomInteractivePianoState extends State<CustomInteractivePiano> {
 
   @override
   void didUpdateWidget(covariant CustomInteractivePiano oldWidget) {
-    if (oldWidget.noteRange != widget.noteRange ||
-        oldWidget.useAlternativeAccidentals !=
-            widget.useAlternativeAccidentals) {
+    if (oldWidget.noteRange != widget.noteRange) {
       _updateNotePositions();
     }
     if (oldWidget.highlightedNotes != widget.highlightedNotes ||
@@ -149,13 +150,6 @@ class _CustomInteractivePianoState extends State<CustomInteractivePiano> {
   _updateNotePositions() {
     final notePositions =
         List<NotePosition>.from(widget.noteRange.allPositions);
-
-    if (widget.useAlternativeAccidentals) {
-      for (int i = 0; i < notePositions.length; i++) {
-        notePositions[i] =
-            notePositions[i].alternativeAccidental ?? notePositions[i];
-      }
-    }
 
     _noteGroups = notePositions
         .splitBeforeIndexed((index, note) =>
@@ -214,6 +208,7 @@ class _CustomInteractivePianoState extends State<CustomInteractivePiano> {
                         children: naturals
                             .map((note) => _PianoKey(
                             notePosition: note,
+                            label: _labelFor(note),
                             color: widget.naturalColor,
                             hideNoteName: widget.hideNoteNames,
                             isAnimated: widget
@@ -243,6 +238,7 @@ class _CustomInteractivePianoState extends State<CustomInteractivePiano> {
                                     .map(
                                       (note) => _PianoKey(
                                     notePosition: note,
+                                    label: _labelFor(note),
                                     color: widget.accidentalColor,
                                     hideNoteName: widget.hideNoteNames,
                                     isAnimated: widget
@@ -277,6 +273,10 @@ class _CustomInteractivePianoState extends State<CustomInteractivePiano> {
   //         ? null
   //         : () => widget.onNotePositionTapped!(notePosition);
 
+  String _labelFor(NotePosition notePosition) => const PianoUtils()
+      .spellNotePosition(notePosition, keySignature: widget.keySignature)
+      .name;
+
   void Function()? _onNotePressed(NotePosition notePosition) =>
       widget.onNotePositionTapped == null
           ? null
@@ -290,6 +290,7 @@ class _CustomInteractivePianoState extends State<CustomInteractivePiano> {
 
 class _PianoKey extends StatefulWidget {
   final NotePosition notePosition;
+  final String label;
   final double keyWidth;
   final BorderRadius _borderRadius;
   final bool hideNoteName;
@@ -303,6 +304,7 @@ class _PianoKey extends StatefulWidget {
   _PianoKey({
     Key? key,
     required this.notePosition,
+    required this.label,
     required this.keyWidth,
     required this.hideNoteName,
     required this.onTapDown,
@@ -393,7 +395,7 @@ class __PianoKeyState extends State<_PianoKey>
         children: [
           Semantics(
               button: true,
-              hint: widget.notePosition.name,
+              hint: widget.label,
               child: Material(
                   borderRadius: widget._borderRadius,
                   elevation:
@@ -428,7 +430,7 @@ class __PianoKeyState extends State<_PianoKey>
                     : Padding(
                   padding: const EdgeInsets.all(5),
                   child: Text(
-                    widget.notePosition.name,
+                    widget.label,
                     textAlign: TextAlign.center,
                     textScaler: TextScaler.linear(1.0),
                     style: TextStyle(
