@@ -86,6 +86,10 @@ jobs:
 
       - name: Build macOS app
         run: flutter build macos --release
+        env:
+          # CI produces an unsigned DMG; signing requires an Apple certificate
+          # and private key installed on the runner.
+          FLUTTER_XCODE_CODE_SIGNING_ALLOWED: 'NO'
 
       - name: Create DMG
         run: |
@@ -111,7 +115,10 @@ jobs:
 
   build-windows:
     needs: test
-    runs-on: windows-latest
+    # universal_ble 0.20.2 still uses the coroutine support provided by VS 2022.
+    runs-on: windows-2022
+    env:
+      FLUIDSYNTH_ROOT: ${{ github.workspace }}\.vcpkg
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -128,8 +135,30 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
+      - name: Install FluidSynth
+        shell: pwsh
+        run: |
+          & "$env:VCPKG_INSTALLATION_ROOT\vcpkg.exe" install fluidsynth:x64-windows "--x-install-root=$env:FLUIDSYNTH_ROOT"
+
+          # The current flutter_midi_pro fork contains a developer-machine
+          # vcpkg path. Point its generated plugin symlink at the CI install.
+          $pluginCmake = "windows/flutter/ephemeral/.plugin_symlinks/flutter_midi_pro/windows/CMakeLists.txt"
+          $ciInstall = (Join-Path $env:FLUIDSYNTH_ROOT "x64-windows").Replace('\', '/')
+          $content = (Get-Content -Raw $pluginCmake).Replace(
+            "C:/Users/erez1/vcpkg/installed/x64-windows",
+            $ciInstall
+          )
+          Set-Content -Path $pluginCmake -Value $content -NoNewline
+
       - name: Build Windows app
         run: flutter build windows --release
+
+      - name: Bundle FluidSynth runtime
+        shell: pwsh
+        run: |
+          $runtimeDir = Join-Path $env:FLUIDSYNTH_ROOT "x64-windows/bin"
+          $releaseDir = "build/windows/x64/runner/Release"
+          Copy-Item -Path "$runtimeDir/*.dll" -Destination $releaseDir
 
       - name: Install Inno Setup
         run: |
