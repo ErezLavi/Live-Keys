@@ -150,6 +150,18 @@ jobs:
           )
           Set-Content -Path $pluginCmake -Value $content -NoNewline
 
+          # The pinned plugin revision uses flutter::EncodableMap in its
+          # public header without including the header that defines the type.
+          $pluginHeader = "windows/flutter/ephemeral/.plugin_symlinks/flutter_midi_pro/windows/flutter_midi_pro_plugin.h"
+          $header = Get-Content -Raw $pluginHeader
+          if (-not $header.Contains("#include <flutter/encodable_value.h>")) {
+            $header = $header.Replace(
+              "#include <flutter/method_channel.h>",
+              "#include <flutter/encodable_value.h>`n#include <flutter/method_channel.h>"
+            )
+            Set-Content -Path $pluginHeader -Value $header -NoNewline
+          }
+
       - name: Build Windows app
         run: flutter build windows --release
 
