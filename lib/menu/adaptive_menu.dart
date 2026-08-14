@@ -43,6 +43,7 @@ class AdaptiveMenu extends StatelessWidget {
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
+      constraints: const BoxConstraints(maxWidth: 450),
       builder: (context) => SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.only(

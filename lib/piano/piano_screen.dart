@@ -141,7 +141,7 @@ class _PianoPageState extends State<PianoPage> {
                                       icon: const Text(
                                         '\u{1D11E}', // 𝄞 treble (G) clef
                                         style: TextStyle(
-                                          fontSize: 24,
+                                          fontSize: 20,
                                           height: 1,
                                         ),
                                       ),
