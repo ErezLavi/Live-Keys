@@ -60,4 +60,5 @@ app.*.map.json
 **/*.so
 
 # Assets
-**/assets/sf2*
+assets/sf2/*
+!assets/sf2/Rhodes.sf2
