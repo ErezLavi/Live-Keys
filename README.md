@@ -1,6 +1,6 @@
-# Live Keys 🎹
+# ChordLens 🎹
 
-Live Keys is a Flutter piano app with real time chord detection,
+ChordLens is a Flutter piano app with real time chord detection,
 MIDI input support and a playable keyboard. Fully supported in MacOs, Windows and Android.
 
 ## Downloads
