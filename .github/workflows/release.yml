@@ -94,7 +94,7 @@ jobs:
       - name: Create DMG
         run: |
           brew install create-dmg
-          APP_NAME="Live Keys"
+          APP_NAME="ChordLens"
           APP_PATH="build/macos/Build/Products/Release/${APP_NAME}.app"
           DMG_NAME="${APP_NAME}.dmg"
           
@@ -180,7 +180,7 @@ jobs:
         run: |
           $version = (Get-Content pubspec.yaml | Select-String -Pattern 'version:\s*([0-9.]+)').Matches.Groups[1].Value
           @"
-          #define MyAppName "Live Keys"
+          #define MyAppName "ChordLens"
           #define MyAppVersion "$version"
           #define MyAppPublisher "Piano App"
           #define MyAppExeName "piano_app.exe"
@@ -193,7 +193,7 @@ jobs:
           DefaultDirName={autopf}\{#MyAppName}
           DefaultGroupName={#MyAppName}
           OutputDir=installer
-          OutputBaseFilename=LiveKeys-Setup
+          OutputBaseFilename=ChordLens-Setup
           Compression=lzma
           SolidCompression=yes
           WizardStyle=modern
@@ -223,7 +223,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-installer
-          path: installer/LiveKeys-Setup.exe
+          path: installer/ChordLens-Setup.exe
 
   create-release:
     needs: [build-android, build-macos, build-windows]
@@ -253,6 +253,6 @@ jobs:
           files: |
             android-apk/app-release.apk
             macos-dmg/*.dmg
-            windows-installer/LiveKeys-Setup.exe
+            windows-installer/ChordLens-Setup.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

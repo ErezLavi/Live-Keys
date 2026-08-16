@@ -1,13 +1,20 @@
-# ChordLens 🎹
+<p align="center">
+  <img src="assets/icons/app_icon_rounded.png" alt="ChordLens icon" width="128" />
+</p>
 
-ChordLens is a Flutter piano app with real time chord detection,
-MIDI input support and a playable keyboard. Fully supported in MacOs, Windows and Android.
+<h1 align="center">ChordLens 🎹</h1>
+
+<p align="center">
+  A Flutter piano app with real time chord detection,
+  MIDI input support and a playable keyboard.<br/>
+  Fully supported on macOS, Windows and Android.
+</p>
 
 ## Downloads
 
-[![macOS](https://img.shields.io/badge/macOS-Download-black?logo=apple)](https://github.com/ErezLavi/Live-Keys/releases/latest)
-[![Windows](https://img.shields.io/badge/Windows-Download-0078D6?logo=windows)](https://github.com/ErezLavi/Live-Keys/releases/latest)
-[![Android](https://img.shields.io/badge/Android-Download-3DDC84?logo=android&logoColor=white)](https://github.com/ErezLavi/Live-Keys/releases/latest)
+[![macOS](https://img.shields.io/badge/macOS-Download-black?logo=apple)](https://github.com/ErezLavi/ChordLens/releases/latest)
+[![Windows](https://img.shields.io/badge/Windows-Download-0078D6?logo=windows)](https://github.com/ErezLavi/ChordLens/releases/latest)
+[![Android](https://img.shields.io/badge/Android-Download-3DDC84?logo=android&logoColor=white)](https://github.com/ErezLavi/ChordLens/releases/latest)
 
 
 ## Features
@@ -46,8 +53,8 @@ The app uses SoundFont files for instrument sounds. The default soundfont is set
 1. Install a Flutter SDK compatible with Dart 3.9.
 2. Clone the repository:
    ```bash
-   git clone https://github.com/ErezLavi/Live-Keys.git
-   cd Live-Keys
+   git clone https://github.com/ErezLavi/ChordLens.git
+   cd ChordLens
    ```
 3. Fetch dependencies (requires `git`, since one package is pulled from GitHub):
    ```bash
