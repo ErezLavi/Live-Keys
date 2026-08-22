@@ -22,6 +22,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'ChordLens',
+      // Wrapping above the Navigator keeps the menu overlay inside the safe
+      // area too: MenuAnchor clamps its dropdown to the overlay bounds, so
+      // without this a menu opening near the edge slides under the Android
+      // system bars instead of stopping short of them.
+      builder: (context, child) => SafeArea(child: child!),
       home: PianoScreen(controller: controller),
     );
   }
