@@ -12,6 +12,9 @@
 
 ## Downloads
 
+Website: **https://erezlavi.github.io/ChordLens/** (source in [`site/`](site), deployed by
+[`.github/workflows/pages.yml`](.github/workflows/pages.yml)).
+
 [![macOS](https://img.shields.io/badge/macOS-Download-black?logo=apple)](https://github.com/ErezLavi/ChordLens/releases/latest)
 [![Windows](https://img.shields.io/badge/Windows-Download-0078D6?logo=windows)](https://github.com/ErezLavi/ChordLens/releases/latest)
 [![Android](https://img.shields.io/badge/Android-Download-3DDC84?logo=android&logoColor=white)](https://github.com/ErezLavi/ChordLens/releases/latest)

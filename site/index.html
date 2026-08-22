@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ChordLens — see the chords you play</title>
+<meta name="description" content="A piano app with real time chord detection, grand staff view, MIDI input and a playable keyboard. Free for macOS, Windows and Android." />
+<link rel="icon" href="assets/icon.png" />
+<link rel="apple-touch-icon" href="assets/icon.png" />
+<meta name="theme-color" content="#120814" />
+
+<meta property="og:type" content="website" />
+<meta property="og:title" content="ChordLens — see the chords you play" />
+<meta property="og:description" content="Real time chord detection, grand staff view, MIDI input and a playable keyboard. Free for macOS, Windows and Android." />
+<meta property="og:image" content="assets/main_layout.png" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div class="glow" aria-hidden="true"></div>
+
+<header class="nav">
+  <a class="brand" href="#top">
+    <img src="assets/icon.png" alt="" width="32" height="32" />
+    <span>ChordLens</span>
+  </a>
+  <nav class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#play">Try it</a>
+    <a href="#screens">Screenshots</a>
+    <a href="#download">Download</a>
+    <a class="ghost" href="https://github.com/ErezLavi/ChordLens" target="_blank" rel="noopener">GitHub ↗</a>
+  </nav>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <div class="hero-copy">
+      <span class="pill" id="version-pill">Free &amp; open source</span>
+      <h1>See the chords<br /><em>you play.</em></h1>
+      <p class="lede">
+        ChordLens listens to your keyboard — hardware MIDI, your computer keys, or the
+        on-screen piano — and names the chord instantly, right above a live grand staff.
+      </p>
+
+      <div class="cta-row">
+        <a class="btn primary" id="primary-download" href="https://github.com/ErezLavi/ChordLens/releases/latest">
+          <span class="btn-icon" id="primary-icon"></span>
+          <span>
+            <strong id="primary-label">Download</strong>
+            <small id="primary-sub">Latest release</small>
+          </span>
+        </a>
+        <a class="btn ghost-btn" href="#download">All platforms</a>
+      </div>
+
+      <ul class="hero-meta">
+        <li>macOS</li><li>Windows</li><li>Android</li><li>No account needed</li>
+      </ul>
+    </div>
+
+    <div class="hero-art">
+      <img src="assets/main_layout.png" alt="ChordLens showing a Cmaj7 chord on the grand staff and highlighted piano keys" />
+    </div>
+  </section>
+
+  <section id="features" class="section">
+    <h2 class="section-title">Everything on one screen</h2>
+    <p class="section-sub">No menus to dig through while your hands are on the keys.</p>
+
+    <div class="cards">
+      <article class="card">
+        <div class="card-ico">Cmaj7</div>
+        <h3>Real time chord detection</h3>
+        <p>Play anything and the chord name appears immediately — triads, sevenths, extensions, suspensions and altered voicings.</p>
+      </article>
+      <article class="card">
+        <div class="card-ico staff">𝄞</div>
+        <h3>Live grand staff</h3>
+        <p>Every pressed note is notated on treble and bass clefs, respecting the key signature you select.</p>
+      </article>
+      <article class="card">
+        <div class="card-ico">🎛️</div>
+        <h3>MIDI input</h3>
+        <p>Connect a MIDI keyboard and ChordLens auto-connects to the first available device. Or use the computer keyboard mapping.</p>
+      </article>
+      <article class="card">
+        <div class="card-ico">✨</div>
+        <h3>Chord &amp; scale highlighting</h3>
+        <p>Pick a chord or scale from the menu and the matching keys light up across the keyboard — great for practice.</p>
+      </article>
+      <article class="card">
+        <div class="card-ico">🔊</div>
+        <h3>SoundFont playback</h3>
+        <p>Ships with a Rhodes SF2, loads your own SoundFont files, and has a mute mode when you only want the analysis.</p>
+      </article>
+      <article class="card">
+        <div class="card-ico">⌨️</div>
+        <h3>Keyboard mapping</h3>
+        <p><code>Z S X D C V G B H N J M , L . ; /</code> plays the octave, <code>[</code> and <code>]</code> shift it up and down.</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="play" class="section">
+    <h2 class="section-title">Try the chord detection</h2>
+    <p class="section-sub">Click or tap the keys — or use your computer keyboard, just like in the app.</p>
+
+    <div class="demo">
+      <div class="demo-readout">
+        <span class="demo-label">Detected chord</span>
+        <div class="demo-chord" id="demo-chord">—</div>
+        <div class="demo-notes" id="demo-notes">Play two or more notes</div>
+      </div>
+      <div class="piano" id="piano" role="group" aria-label="Playable piano keyboard"></div>
+      <p class="demo-hint">A simplified taste of the real thing. The app detects far more chord types, on a full 88-key range.</p>
+    </div>
+  </section>
+
+  <section id="screens" class="section">
+    <h2 class="section-title">A closer look</h2>
+    <p class="section-sub">Chords, scales and settings — all a tap away.</p>
+    <div class="shots">
+      <figure><img src="assets/chords.png" alt="Chord highlighting view" loading="lazy" /><figcaption>Chord highlighting</figcaption></figure>
+      <figure><img src="assets/scales.png" alt="Scale highlighting view" loading="lazy" /><figcaption>Scale highlighting</figcaption></figure>
+      <figure><img src="assets/menu.png" alt="Settings menu" loading="lazy" /><figcaption>Settings &amp; SoundFonts</figcaption></figure>
+    </div>
+  </section>
+
+  <section id="download" class="section">
+    <h2 class="section-title">Download ChordLens</h2>
+    <p class="section-sub" id="release-sub">Always the latest release, straight from GitHub.</p>
+
+    <div class="downloads" id="downloads">
+      <a class="dl" data-os="macos" href="https://github.com/ErezLavi/ChordLens/releases/latest/download/ChordLens.dmg">
+        <span class="dl-ico"></span>
+        <span class="dl-name">macOS</span>
+        <span class="dl-file">ChordLens.dmg</span>
+        <span class="dl-size" data-size-for="ChordLens.dmg"></span>
+      </a>
+      <a class="dl" data-os="windows" href="https://github.com/ErezLavi/ChordLens/releases/latest/download/ChordLens-Setup.exe">
+        <span class="dl-ico">⊞</span>
+        <span class="dl-name">Windows</span>
+        <span class="dl-file">ChordLens-Setup.exe</span>
+        <span class="dl-size" data-size-for="ChordLens-Setup.exe"></span>
+      </a>
+      <a class="dl" data-os="android" href="https://github.com/ErezLavi/ChordLens/releases/latest/download/app-release.apk">
+        <span class="dl-ico">🤖</span>
+        <span class="dl-name">Android</span>
+        <span class="dl-file">app-release.apk</span>
+        <span class="dl-size" data-size-for="app-release.apk"></span>
+      </a>
+    </div>
+
+    <details class="notes">
+      <summary>Installation notes</summary>
+      <ul>
+        <li><strong>macOS</strong> — the DMG is unsigned. On first launch, right-click the app and choose <em>Open</em>, or run <code>xattr -dr com.apple.quarantine /Applications/ChordLens.app</code>.</li>
+        <li><strong>Windows</strong> — SmartScreen may warn about an unknown publisher. Choose <em>More info → Run anyway</em>.</li>
+        <li><strong>Android</strong> — sideloading the APK requires allowing installs from unknown sources.</li>
+      </ul>
+    </details>
+
+    <p class="build-note">
+      Prefer to build it yourself? Clone the repo, run <code>flutter pub get</code>, then
+      <code>flutter run -d macos|windows|android</code>. Requires a Flutter SDK compatible with Dart 3.9.
+    </p>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <img src="assets/icon.png" alt="" width="40" height="40" />
+  <p>ChordLens — built with Flutter by <a href="https://github.com/ErezLavi" target="_blank" rel="noopener">Erez Lavi</a>.</p>
+  <p class="muted"><a href="https://github.com/ErezLavi/ChordLens">Source</a> · <a href="https://github.com/ErezLavi/ChordLens/releases">Releases</a> · <a href="https://github.com/ErezLavi/ChordLens/issues">Report an issue</a></p>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>

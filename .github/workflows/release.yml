@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - main
+    # Website and documentation changes do not need a three-platform rebuild.
+    paths-ignore:
+      - 'site/**'
+      - 'docs/**'
+      - 'README.md'
+      - '.github/workflows/pages.yml'
 
 jobs:
   test:
