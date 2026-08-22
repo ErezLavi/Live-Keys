@@ -325,16 +325,6 @@ main { position: relative; z-index: 1; }
   box-shadow: 0 20px 50px -26px rgba(127, 8, 129, 0.95);
 }
 .dl.recommended { border-color: var(--purple-lite); background: rgba(127, 8, 129, 0.16); }
-.dl.recommended::after {
-  content: "Detected";
-  position: absolute;
-  margin-top: -52px;
-  font-size: 0.68rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--orange);
-}
-.dl { position: relative; }
 .dl-ico { font-size: 2rem; line-height: 1.2; }
 .dl-name { font-weight: 700; font-size: 1.1rem; }
 .dl-file { color: var(--muted); font-size: 0.86rem; }
@@ -377,7 +367,17 @@ main { position: relative; z-index: 1; }
   .hero { grid-template-columns: 1fr; padding-top: 48px; gap: 40px; }
   .nav-links a:not(.ghost) { display: none; }
   .section { padding: 68px 20px; }
-  .piano { height: 150px; }
+  .piano { height: 160px; }
+}
+
+@media (max-width: 600px) {
+  .demo { padding: 18px 14px; border-radius: 18px; }
+  .piano { height: 150px; padding: 8px 8px 10px; }
+  .key { font-size: 0.62rem; padding-bottom: 7px; }
+  .key.white { margin-right: 2px; }
+  .demo-hint { font-size: 0.8rem; }
+  .btn.primary, .btn.ghost-btn { width: 100%; justify-content: center; }
+  .dl { padding: 24px 16px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

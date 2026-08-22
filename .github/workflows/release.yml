@@ -4,12 +4,15 @@ on:
   push:
     branches:
       - main
-    # Website and documentation changes do not need a three-platform rebuild.
+    # Website, documentation and CI-config changes do not need a three-platform
+    # rebuild. Bumping the version in pubspec.yaml still triggers a release.
     paths-ignore:
       - 'site/**'
       - 'docs/**'
       - 'README.md'
       - '.github/workflows/pages.yml'
+      - '.github/workflows/release.yml'
+  workflow_dispatch:
 
 jobs:
   test:

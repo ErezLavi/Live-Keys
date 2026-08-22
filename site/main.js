@@ -101,7 +101,9 @@ loadRelease(setUpPrimaryCta());
 
 const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 const START_MIDI = 60; // C4
-const OCTAVES = 2;
+
+/** Two octaves need ~600px to stay playable; narrow screens get one. */
+const octaveCount = () => (window.innerWidth < 700 ? 1 : 2);
 
 /* Interval sets above the root, mirroring the app's chord database. */
 const CHORD_DB = [
@@ -214,7 +216,10 @@ function buildKeyboard() {
   const whites = [];
   const blacks = [];
 
-  for (let i = 0; i < OCTAVES * 12 + 1; i++) {
+  piano.innerHTML = '';
+  keyEls.clear();
+
+  for (let i = 0; i < octaveCount() * 12 + 1; i++) {
     const midi = START_MIDI + i;
     const name = NOTE_NAMES[midi % 12];
     const isBlack = name.includes('#');
@@ -342,4 +347,15 @@ window.addEventListener('keyup', (e) => {
 });
 
 buildKeyboard();
-window.addEventListener('resize', positionBlackKeys);
+
+let builtOctaves = octaveCount();
+window.addEventListener('resize', () => {
+  if (octaveCount() === builtOctaves) {
+    positionBlackKeys();
+    return;
+  }
+  // The key range changed, so drop anything held before swapping the DOM out.
+  for (const midi of [...held]) release(midi);
+  builtOctaves = octaveCount();
+  buildKeyboard();
+});
