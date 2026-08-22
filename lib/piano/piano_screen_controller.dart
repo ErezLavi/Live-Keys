@@ -11,8 +11,8 @@ import 'package:piano_app/domain/sound_font_option.dart';
 import 'package:piano_app/domain/selected_chord.dart';
 import 'package:piano_app/domain/selected_scale.dart';
 
-class PianoPageController extends ChangeNotifier {
-  PianoPageController();
+class PianoScreenController extends ChangeNotifier {
+  PianoScreenController();
 
   static final NoteRange fullRange = NoteRange(
     from: NotePosition(note: Note.A, octave: 0),

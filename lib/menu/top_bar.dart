@@ -7,7 +7,7 @@ import 'package:piano_app/menu/scales_grid.dart';
 import 'package:piano_app/piano/piano_screen_controller.dart';
 
 class TopMenuBar extends StatelessWidget {
-  final PianoPageController controller;
+  final PianoScreenController controller;
   final bool isCompact;
 
   const TopMenuBar({

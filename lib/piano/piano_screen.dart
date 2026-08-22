@@ -10,17 +10,17 @@ import 'package:piano_app/menu/adaptive_menu.dart';
 import 'package:piano_app/menu/key_signature_grid.dart';
 import 'package:piano_app/menu/top_bar.dart';
 
-class PianoPage extends StatefulWidget {
-  const PianoPage({super.key, required this.controller});
+class PianoScreen extends StatefulWidget {
+  const PianoScreen({super.key, required this.controller});
 
-  final PianoPageController controller;
+  final PianoScreenController controller;
 
   @override
-  State<PianoPage> createState() => _PianoPageState();
+  State<PianoScreen> createState() => _PianoScreenState();
 }
 
-class _PianoPageState extends State<PianoPage> {
-  late final PianoPageController _controller;
+class _PianoScreenState extends State<PianoScreen> {
+  late final PianoScreenController _controller;
   bool get _showOctaveControls =>
       defaultTargetPlatform != TargetPlatform.android ||
       _controller.connectedDeviceNames.isNotEmpty;

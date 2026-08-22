@@ -9,20 +9,20 @@ void main() {
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
   ]);
-  final pianoPageController = PianoPageController();
+  final pianoPageController = PianoScreenController();
   runApp(MyApp(controller: pianoPageController));
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key, required this.controller});
 
-  final PianoPageController controller;
+  final PianoScreenController controller;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'ChordLens',
-      home: PianoPage(controller: controller),
+      home: PianoScreen(controller: controller),
     );
   }
 }
