@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:piano/piano.dart';
-import 'package:piano_app/common/chord_detector.dart';
+import 'package:piano_app/common/logic/chord_detector.dart';
 
 NotePosition n(
   Note note,
